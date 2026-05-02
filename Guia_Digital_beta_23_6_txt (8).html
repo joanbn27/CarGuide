@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carguide - Guia d'Elecció de Vehicle</title>
+    
+<style>
+        :root { --primary: #1d4ed8; --secondary: #475569; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: var(--primary); }
+        h1 { text-align: center; font-family: 'Agrandir', sans-serif; font-weight: 900; letter-spacing: 2px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-weight: 600; font-size: 0.95rem; }
+        select, input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; width: 100%; box-sizing: border-box; }
+        
+        #btn-recomana { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem; margin-top: 10px; }
+        #btn-recomana:hover { opacity: 0.9; }
+
+        .results-section { margin-top: 40px; display: none; padding-top: 20px; border-top: 2px solid #e2e8f0; }
+        .motor-box { margin-bottom: 25px; padding: 20px; border-radius: 8px; border-left: 6px solid var(--primary); background: #eff6ff; }
+        .motor-box h3 { margin-top: 0; color: var(--primary); text-transform: uppercase; font-size: 1rem; }
+        .warning { background: #fff7ed; border-left-color: #f97316; margin-top: 10px; padding: 10px; font-size: 0.9rem; border-radius: 4px; }
+        
+        .table-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .table-controls h3 { margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
+        th { background: #f1f5f9; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+        .tag-0 { background: #dcfce7; color: #166534; }
+        .tag-eco { background: #fef9c3; color: #854d0e; }
+        .tag-c { background: #fee2e2; color: #991b1b; }
+
+        .table-wrapper { overflow-x: auto; }
+        .count-info { margin-top: 10px; font-size: 0.9rem; color: var(--secondary); }
+        .footer-note { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 0.75rem; color: #94a3b8; text-align: center; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="text-align:center;margin:0 0 20px 0;">
+    <img src="data:image/png;base64,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" alt="CARGUIDE" style="height:70px;width:auto;">
+</h1>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label>📏 Quilòmetres anuals</label>
+            <select id="kmAnuals">
+                <option value="5000">&lt;5.000</option>
+                <option value="7500" selected>5.000 – 10.000</option>
+                <option value="15000">&gt;10.000</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🛣️ Tipus de trajecte</label>
+            <select id="trajecte">
+                <option value="Urbà">Urbà</option>
+                <option value="Mixt" selected>Mixt</option>
+                <option value="Carretera">Carretera</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🧳 Viatges llargs (>200 km)</label>
+            <select id="viatgesLlargs">
+                <option value="Mai">Mai</option>
+                <option value="Ocasional" selected>Ocasional</option>
+                <option value="Freqüent">Freqüent</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🔌 Carregador a casa</label>
+            <select id="carregadorCasa">
+                <option value="Sí">Sí</option>
+                <option value="No" selected>No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🔋 Xarxa pública a prop</label>
+            <select id="carregadorPublic">
+                <option value="Sí">Sí</option>
+                <option value="No" selected>No</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>💰 Pressupost compra (sense subv.)</label>
+            <input type="number" id="pressupost" value="35000">
+        </div>
+        <div class="form-group">
+            <label>⛽ Preocupació consum (1-3)</label>
+            <input type="number" id="consumPref" min="1" max="3" value="2">
+        </div>
+        <div class="form-group">
+            <label>🔧 Importància manteniment (1-3)</label>
+            <input type="number" id="mantenimentPref" min="1" max="3" value="2">
+        </div>
+        <div class="form-group">
+            <label>🌱 Preocupació ecològica (1-3)</label>
+            <input type="number" id="ecologiaPref" min="1" max="3" value="1">
+        </div>
+        <div class="form-group">
+            <label>🏎️ Preferència carrosseria</label>
+            <select id="carrosseria">
+                <option value="No importa">No importa</option>
+                <option value="SUV">SUV</option>
+                <option value="Compacte">Compacte</option>
+                <option value="Berlina">Berlina</option>
+                <option value="Familiar">Familiar</option>
+                <option value="Monovolum">Monovolum</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>👥 Nombre de places</label>
+            <select id="places">
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="7">7</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>🏷️ Marca preferida</label>
+            <input type="text" id="marcaPref" placeholder="Ex: Volkswagen">
+        </div>
+        <div class="form-group">
+            <label>⚡ Potència mínima (CV)</label>
+            <input type="number" id="potenciaPref" value="100">
+        </div>
+    </div>
+
+    <button id="btn-recomana" onclick="generarRecomanacio()">Generar Recomanació</button>
+
+    <div id="results" class="results-section">
+        <div id="justificacions-container"></div>
+
+        <div class="table-controls">
+            <h3>Cotxes aptes</h3>
+            <select id="ordenacio" onchange="actualitzarTaula()">
+                <option value="preu_asc">Menor a major preu</option>
+                <option value="preu_desc">Major a menor preu</option>
+                <option value="pot_asc">Menor a major potència</option>
+                <option value="pot_desc">Major a menor potència</option>
+                <option value="tco5_asc">Menor a major TCO 5 anys</option>
+                <option value="tco5_desc">Major a menor TCO 5 anys</option>
+                <option value="tco10_asc">Menor a major TCO 10 anys</option>
+                <option value="tco10_desc">Major a menor TCO 10 anys</option>
+                <option value="cost_asc">Menor a major Cost anual</option>
+                <option value="cost_desc">Major a menor Cost anual</option>
+            </select>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Motorització</th>
+                        <th>Etiqueta</th>
+                        <th>Potència</th>
+                        <th>Preu Net</th>
+                        <th>TCO 5a</th>
+                        <th>TCO 10a</th>
+                        <th>Cost anual</th>
+                    </tr>
+                </thead>
+                <tbody id="taula-body"></tbody>
+            </table>
+        </div>
+        <div class="count-info" id="count-info"></div>
+    </div>
+
+    <div class="footer-note">
+        * Aquesta eina només mostra vehicles del segment C. Els preus i costos són orientatius i estan calculats amb dades de mercat actualitzades. No s'inclouen costos de manteniment, assegurances ni impostos en els càlculs.
+    </div>
+</div>
+
+<script>
+    // BASE DE DADES AMB COSTOS ANUALS PRE-CALCULATS
+    const baseDades = [
+        { m: "Volkswagen Golf", t: "Compacte", mot: "Benzina", cv: 115, tag: "C", pl: 5, p: 29700, mant: 1, sub: 0, anual: 845.88, tco5: 33929, tco10: 38159 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "Benzina", cv: 204, tag: "C", pl: 5, p: 43900, mant: 1, sub: 0, anual: 1101.24, tco5: 49406, tco10: 54912 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "Benzina", cv: 265, tag: "C", pl: 5, p: 43900, mant: 1, sub: 0, anual: 1117.20, tco5: 49486, tco10: 55072 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "Benzina", cv: 150, tag: "C", pl: 5, p: 36000, mant: 1, sub: 0, anual: 861.84, tco5: 40309, tco10: 44618 },
+        { m: "Volkswagen Golf Variant", t: "Familiar", mot: "Benzina", cv: 115, tag: "C", pl: 5, p: 31075, mant: 1, sub: 0, anual: 845.88, tco5: 35304, tco10: 39534 },
+        { m: "Volkswagen T-Roc Cabrio", t: "SUV", mot: "Benzina", cv: 110, tag: "C", pl: 5, p: 37800, mant: 1, sub: 0, anual: 957.60, tco5: 42588, tco10: 47376 },
+        { m: "Volkswagen Tiguan", t: "SUV", mot: "Benzina", cv: 204, tag: "C", pl: 5, p: 54700, mant: 1, sub: 0, anual: 1212.96, tco5: 60765, tco10: 66830 },
+        { m: "Kia Ceed", t: "Compacte", mot: "Benzina", cv: 100, tag: "C", pl: 5, p: 25200, mant: 1, sub: 0, anual: 845.88, tco5: 29429, tco10: 33659 },
+        { m: "Kia K4", t: "Compacte", mot: "Benzina", cv: 150, tag: "C", pl: 5, p: 33000, mant: 1, sub: 0, anual: 1021.44, tco5: 38107, tco10: 43214 },
+        { m: "BMW Serie 1", t: "Compacte", mot: "Benzina", cv: 122, tag: "C", pl: 5, p: 35000, mant: 1, sub: 0, anual: 941.64, tco5: 39708, tco10: 44416 },
+        { m: "Audi A3 Sportback", t: "Compacte", mot: "Benzina", cv: 116, tag: "C", pl: 5, p: 34000, mant: 1, sub: 0, anual: 877.80, tco5: 38389, tco10: 42778 },
+        { m: "SEAT León 5p", t: "Compacte", mot: "Benzina", cv: 115, tag: "C", pl: 5, p: 27800, mant: 1, sub: 0, anual: 893.76, tco5: 32269, tco10: 36738 },
+        { m: "SEAT Ateca", t: "SUV", mot: "Benzina", cv: 115, tag: "C", pl: 5, p: 27800, mant: 1, sub: 0, anual: 973.56, tco5: 32668, tco10: 37536 },
+        { m: "Dacia Jogger", t: "Monovolum", mot: "Benzina", cv: 110, tag: "C", pl: 7, p: 18900, mant: 1, sub: 0, anual: 941.64, tco5: 23608, tco10: 28316 },
+        { m: "Hyundai i30 5p", t: "Compacte", mot: "Benzina", cv: 100, tag: "C", pl: 5, p: 26700, mant: 1, sub: 0, anual: 989.52, tco5: 31648, tco10: 36595 },
+        { m: "MG HS", t: "SUV", mot: "Benzina", cv: 170, tag: "C", pl: 5, p: 26000, mant: 1, sub: 0, anual: 1181.04, tco5: 31905, tco10: 37810 },
+        { m: "Renault Symbioz", t: "SUV", mot: "Benzina / GLP", cv: 120, tag: "ECO", pl: 5, p: 26000, mant: 2, sub: 0, anual: 775.66, tco5: 29878, tco10: 33757 },
+        { m: "Dacia Duster", t: "SUV", mot: "Benzina / GLP", cv: 122, tag: "ECO", pl: 5, p: 20000, mant: 2, sub: 0, anual: 872.61, tco5: 24363, tco10: 28726 },
+        { m: "Volkswagen Tiguan", t: "SUV", mot: "Diesel", cv: 150, tag: "C", pl: 5, p: 43200, mant: 3, sub: 0, anual: 993.30, tco5: 48167, tco10: 53133 },
+        { m: "BMW Serie 1", t: "Compacte", mot: "Diesel", cv: 150, tag: "C", pl: 5, p: 40000, mant: 3, sub: 0, anual: 830.76, tco5: 44154, tco10: 48308 },
+        { m: "SEAT León 5p", t: "Compacte", mot: "Diesel", cv: 150, tag: "C", pl: 5, p: 35300, mant: 3, sub: 0, anual: 848.82, tco5: 39544, tco10: 43788 },
+        { m: "Audi A3 Sportback", t: "Compacte", mot: "Dièsel", cv: 116, tag: "C", pl: 5, p: 35900, mant: 3, sub: 0, anual: 794.64, tco5: 39873, tco10: 43846 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "Dièsel", cv: 115, tag: "C", pl: 5, p: 31000, mant: 3, sub: 0, anual: 776.58, tco5: 34883, tco10: 38766 },
+        { m: "Volkswagen ID.3", t: "Compacte", mot: "Elèctric", cv: 170, tag: "0", pl: 5, p: 36000, mant: 0, sub: 4500, anual: 80.33, tco5: 31902, tco10: 32303 },
+        { m: "Toyota C-HR+", t: "SUV", mot: "Elèctric", cv: 224, tag: "0", pl: 5, p: 35300, mant: 0, sub: 4500, anual: 70.35, tco5: 31152, tco10: 31504 },
+        { m: "Kia EV3 (Standard Range)", t: "SUV", mot: "Elèctric", cv: 204, tag: "0", pl: 5, p: 36200, mant: 0, sub: 4500, anual: 78.23, tco5: 32091, tco10: 32482 },
+        { m: "Nissan Leaf", t: "Compacte", mot: "Elèctric", cv: 177, tag: "0", pl: 5, p: 37000, mant: 0, sub: 4500, anual: 71.93, tco5: 32860, tco10: 33219 },
+        { m: "BMW iX1", t: "SUV", mot: "Elèctric", cv: 204, tag: "0", pl: 5, p: 55000, mant: 0, sub: 0, anual: 74.55, tco5: 55373, tco10: 55746 },
+        { m: "Toyota Corolla 5p", t: "Compacte", mot: "HEV", cv: 140, tag: "ECO", pl: 5, p: 26700, mant: 2, sub: 0, anual: 702.24, tco5: 30211, tco10: 33722 },
+        { m: "Toyota C-HR", t: "SUV", mot: "HEV", cv: 140, tag: "ECO", pl: 5, p: 35700, mant: 2, sub: 0, anual: 750.12, tco5: 39451, tco10: 43201 },
+        { m: "Honda Civic", t: "Berlina", mot: "HEV", cv: 184, tag: "ECO", pl: 5, p: 33900, mant: 2, sub: 0, anual: 798.00, tco5: 37890, tco10: 41880 },
+        { m: "Renault Symbioz", t: "SUV", mot: "HEV", cv: 160, tag: "ECO", pl: 5, p: 30100, mant: 2, sub: 0, anual: 686.28, tco5: 33531, tco10: 36963 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "MHEV", cv: 115, tag: "ECO", pl: 5, p: 31200, mant: 1, sub: 0, anual: 798.00, tco5: 35190, tco10: 39180 },
+        { m: "Volkswagen T-Roc", t: "SUV", mot: "MHEV", cv: 115, tag: "ECO", pl: 5, p: 34200, mant: 1, sub: 0, anual: 877.80, tco5: 38589, tco10: 42978 },
+        { m: "Mazda 3 5p", t: "Compacte", mot: "MHEV", cv: 140, tag: "ECO", pl: 5, p: 28300, mant: 1, sub: 0, anual: 957.60, tco5: 33088, tco10: 37876 },
+        { m: "SEAT León 5p", t: "Compacte", mot: "MHEV", cv: 115, tag: "ECO", pl: 5, p: 29400, mant: 1, sub: 0, anual: 829.92, tco5: 33550, tco10: 37699 },
+        { m: "Volkswagen Golf", t: "Compacte", mot: "PHEV", cv: 204, tag: "0", pl: 5, p: 44515, mant: 3, sub: 4500, anual: 175.56, tco5: 40893, tco10: 41771 },
+        { m: "Toyota C-HR", t: "SUV", mot: "PHEV", cv: 223, tag: "0", pl: 5, p: 39100, mant: 3, sub: 4500, anual: 127.68, tco5: 35238, tco10: 35877 },
+        { m: "Kia Sportage", t: "SUV", mot: "PHEV", cv: 245, tag: "0", pl: 5, p: 47400, mant: 3, sub: 4500, anual: 462.84, tco5: 45214, tco10: 47528 },
+        { m: "Ford Kuga", t: "SUV", mot: "PHEV", cv: 243, tag: "0", pl: 5, p: 38000, mant: 3, sub: 4500, anual: 446.88, tco5: 35734, tco10: 37969 }
+    ];
+
+    const justificacions = {
+        "Elèctric": { j: "Recomanat per a qui busca el mínim cost per quilòmetre a llarg termini i té accés a càrrega domèstica. És l'opció amb menys manteniment i zero emissions de CO₂.", a: "L'autonomia real pot ser inferior a l'homologada en condicions de fred o velocitat alta, per la qual cosa cal planificar els trajectes llargs." },
+        "PHEV": { j: "Versatil en trajectes barrejats, permetent circular en mode elèctric en el dia a dia. És ideal per a usuaris amb hàbit de càrrega diària que necessiten autonomia per a viatges puntuals.", a: "Si no es carrega sovint, s'acaba utilitzant com un cotxe de benzina normal però amb un pes extra de les bateries que el fa poc eficient." },
+        "Dièsel": { j: "Es caracteritzen per la seva eficiència de consum en condicions de càrrega de treball constants. És ideal exclusivament per a usuaris que facin viatges llargs per autopista.", a: "El seu cost de manteniment és elevat en comparació amb la resta de tecnologies." },
+        "Benzina": { j: "Es justifica per tenir el preu de compra inicial més baix de totes les opcions. És ideal per a perfils amb un pressupost ajustat que facin pocs quilòmetres anuals.", a: "Aquesta opció té el cost de compra més baix, però és la que genera més emissions i té un cost per quilòmetre superior a llarg termini." },
+        "GLP": { j: "Ofereix l'estalvi màxim en combustible dins dels motors de combustió. És ideal per a qui té accés fàcil a sortidors de gas i busca reduir la despesa en carburant sense dependre d'un endoll.", a: "En cas de viatjar a l'estranger, és possible que es necessitin adaptadors específics per a les boquilles de càrrega." },
+        "HEV": { j: "Permet una reducció d'emissions respecte als motors de combustió sense requerir una inversió inicial tan elevada com l'elèctric. És ideal per a un ús principalment urbà o mixt amb pocs quilòmetres anuals.", a: "En autopista domina el motor tèrmic i l'estalvi es redueix. L'autonomia elèctrica és molt limitada." },
+        "MHEV": { j: "Permet una reducció d'emissions respecte als motors de combustió sense requerir una inversió inicial tan elevada com l'elèctric.", a: "En autopista domina el motor tèrmic i l'estalvi es redueix. L'autonomia elèctrica és molt limitada." }
+    };
+
+    let cotxesAptes = [];
+
+    function generarRecomanacio() {
+        const tr = document.getElementById('trajecte').value;
+        const carg = document.getElementById('carregadorCasa').value === 'Sí' || document.getElementById('carregadorPublic').value === 'Sí';
+        const eco = parseInt(document.getElementById('ecologiaPref').value);
+        
+        let motorRec = [];
+        if (tr === "Urbà") {
+            if (carg) motorRec = ["Elèctric"];
+            else motorRec = (eco === 1) ? ["Benzina", "GLP"] : (eco === 2 ? ["HEV", "MHEV"] : ["PHEV"]);
+        } else if (tr === "Mixt") {
+            if (carg) motorRec = ["Elèctric"];
+            else motorRec = (eco === 1) ? ["Benzina", "GLP", "HEV", "MHEV"] : ["HEV", "MHEV"];
+        } else {
+            if (carg) motorRec = (eco === 3) ? ["Elèctric"] : ["PHEV", "Dièsel"];
+            else motorRec = (eco === 1) ? ["Dièsel"] : ["HEV", "MHEV"];
+        }
+
+        const press = parseFloat(document.getElementById('pressupost').value);
+        const carrosseria = document.getElementById('carrosseria').value;
+        const places = parseInt(document.getElementById('places').value);
+        const marca = document.getElementById('marcaPref').value.toLowerCase();
+        const pot = parseInt(document.getElementById('potenciaPref').value);
+
+        cotxesAptes = baseDades.filter(c => {
+            const mOk = motorRec.some(m => {
+                if (m === "HEV") return c.mot.includes("HEV") && !c.mot.includes("PHEV") && !c.mot.includes("MHEV");
+                if (m === "MHEV") return c.mot.includes("MHEV");
+                if (m === "PHEV") return c.mot === "PHEV" || c.mot.includes("PHEV");
+                return c.mot === m || c.mot.includes(m);
+            });
+            const pOk = c.p <= press;
+            const cOk = carrosseria === "No importa" || c.t === carrosseria;
+            const marcaOk = !marca || c.m.toLowerCase().includes(marca);
+            const potOk = c.cv >= pot;
+            return mOk && pOk && cOk && marcaOk && potOk;
+        });
+
+        if (!cotxesAptes.some(c => c.pl === places)) {
+            cotxesAptes = cotxesAptes.filter(c => c.pl === 5);
+        } else {
+            cotxesAptes = cotxesAptes.filter(c => c.pl === places);
+        }
+
+        mostrarResultats(motorRec);
+    }
+
+    function mostrarResultats(motors) {
+        const resDiv = document.getElementById('results');
+        const justContainer = document.getElementById('justificacions-container');
+        resDiv.style.display = 'block';
+        justContainer.innerHTML = '';
+
+        motors.forEach(m => {
+            const info = justificacions[m] || justificacions["Benzina"];
+            const nomMostrar = (m === "PHEV") ? "Híbrid endollable" : m;
+            
+            justContainer.innerHTML += `
+                <div class="motor-box">
+                    <h3>Motorització recomanada: ${nomMostrar}</h3>
+                    <p><strong>Justificació:</strong> ${info.j}</p>
+                    <div class="warning"><strong>⚠️ Advertiment:</strong> ${info.a}</div>
+                </div>
+            `;
+        });
+
+        actualitzarTaula();
+    }
+
+    function actualitzarTaula() {
+        const sort = document.getElementById('ordenacio').value;
+        cotxesAptes.sort((a, b) => {
+            const pa = a.p - a.sub, pb = b.p - b.sub;
+            if (sort === "preu_asc") return pa - pb;
+            if (sort === "preu_desc") return pb - pa;
+            if (sort === "pot_asc") return a.cv - b.cv;
+            if (sort === "pot_desc") return b.cv - a.cv;
+            if (sort === "tco5_asc") return a.tco5 - b.tco5;
+            if (sort === "tco5_desc") return b.tco5 - a.tco5;
+            if (sort === "tco10_asc") return a.tco10 - b.tco10;
+            if (sort === "tco10_desc") return b.tco10 - a.tco10;
+            if (sort === "cost_asc") return a.anual - b.anual;
+            if (sort === "cost_desc") return b.anual - a.anual;
+            return 0;
+        });
+
+        document.getElementById('taula-body').innerHTML = cotxesAptes.map(c => `
+            <tr>
+                <td><strong>${c.m}</strong></td>
+                <td>${c.mot}</td>
+                <td><span class="badge tag-${c.tag.toLowerCase()}">${c.tag}</span></td>
+                <td>${c.cv} CV</td>
+                <td>${(c.p - c.sub).toLocaleString()} €</td>
+                <td>${c.tco5.toLocaleString()} €</td>
+                <td>${c.tco10.toLocaleString()} €</td>
+                <td>${c.anual.toLocaleString()} €</td>
+            </tr>
+        `).join('');
+
+        document.getElementById('count-info').textContent = 
+            `Total de cotxes aptes: ${cotxesAptes.length}`;
+    }
+</script>
+</body>
+</html>
